@@ -1,0 +1,20 @@
+Comprehensive book on motion planning:
+    http://planning.cs.uiuc.edu/
+	It is written by one of the people that proposed the RRT algorithm, Prof. Steve LaValle from UIUC
+	(academic advisor of Prof. Jingjin Yu, an assistant professor in the department)
+	Chapter 4 describes the concept of the Configuration Space
+	Chapter 5 introduces sampling-based motion planning algorithms
+
+The following paper describes the conditions under which different sampling-based algorithms converge to optimal paths:
+    https://arxiv.org/abs/1105.1186
+	It is quite long with a lot of proofs
+	But you can find here the exact description of the connectivity radius or the number of radius needed for PRM*.
+	e.g., on page 14 it specifies that k(n) := k_{PRM} log(n), where k_{PRM} > e(1 + 1/d)
+	d is the dimensionality of the problem, so in our case 2
+
+Finally, the recent paper that is actually moving the nodes of an RRT is the following one:
+    http://www.roboticsproceedings.org/rss13/p08.pdf
+	And the code for it is available here:
+	https://github.com/DCSLgatech/ompl/blob/master/src/ompl/geometric/planners/rrt/DRRT.h
+
+Considering strategies for moving nodes of the PRM or the RRT
