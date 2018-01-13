@@ -1,147 +1,141 @@
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpl_poly
-from matplotlib.collections import PatchCollection
-import numpy as np
-# import GUI # add this in later when compartemtalizing
-import Intersect as Intersect
+import board as board_class
 
 
-class board:
-	def __init__(self):
-		# array(1) of other arrays(2)
-		# arrays(2) is an array of 3 pairs of points, each pair being a tuple array(3)
-		self.polygon_points = []
-		
-		self.num_poly = 0
-		self.edges = 3
-		# heuristic for number of triangles to put in
-		self.max_density = .7
-		self.current_area = 0
-		self.total_area = 1
-		
-		self.area_heuristic_val = 0.7
-		# adding extra heuristics is worse than creating a better algorithm to bound triangle areas
-		# self.regularity_upper_heuristic = 0.00125
-		# self.regularity_lower_heuristic = 0.05
-		# self.convexity_heuristic = 90
-	
-	def create_polygons(self):
-		self.current_area = 0
-		tryNum = 1
-		while self.current_area<self.max_density*self.total_area and self.num_poly<2:
-			# print(self.current_area, self.density*self.total_area)
-			temp_polygon = np.random.rand(self.edges, 2) # create triangle
-			temp_area = self.area(temp_polygon)
-			if self.heuristic(temp_polygon, temp_area) is False:
-				continue
-				# print("area was ", temp_area, "CONTINUE")
-				import sys
-				sys.exit(0)
-			
-			print("candidate polygon NUMBER %d try %d:" % (self.num_poly, tryNum), temp_polygon)
-			tryNum+=1
-			if self.intersect(temp_polygon) is not True:
-				tryNum=1
-				self.num_poly+=1
-				self.polygon_points.append(temp_polygon) # put in graph
-				self.current_area = self.current_area + temp_area # update current_area
-		
-		# DEBUGGING
-		if not self.current_area<self.max_density*self.total_area: 
-			print("condition area")
-		elif not self.num_poly<10:
-			print("condition iteration")
-	
-	def heuristic(self, temp_polygon, temp_area):
-		if self.area_heuristic(temp_area) is False:
-			return False
-		# if temp_area<self.regularity_lower_heuristic or temp_area>self.regularity_upper_heuristic:
-		# 	print(temp_area, self.regularity_lower_heuristic, self.regularity_upper_heuristic)
-		# 	return False
-		# if self.angle(temp_polygon)>self.convexity_heuristic:
-		# 	return False
-		return True
-	
-	def area_heuristic(self, temp_area):
-		print(temp_area,self.total_area,self.current_area,self.area_heuristic_val)
-		if temp_area>((self.total_area-self.current_area)*self.area_heuristic_val): # if it fails the condition
-			return False
-		return True
-	
-	def area(self, pts): # take a 3 by 2 array of points and calculates the triangular area
-		area = abs(pts[0][0]*(pts[1][1]-pts[2][1]) + pts[1][0]*(pts[2][1]-pts[0][1]) + pts[2][0]*(pts[0][1]-pts[1][1]))/2
-		print("area=", area)
-		return area
-	
-	def intersect(self, temp_polygon):
-		# patches[0].get_xy()
-		if len(self.polygon_points) is 0:
-			return False
-		# for i in range(len(self.polygon_points)):
-		# 	# print("len(self.polygon_points)", len(self.polygon_points))
-		# 	if Intersect.PolyOverlaps(temp_polygon, self.polygon_points[i]): # if not an empty array
-		# 		return True # return intersect as true
-		for polygon in self.polygon_points:
-			if Intersect.PolyOverlaps(temp_polygon, polygon): # if not an empty array
-				return True # return intersect as true
-		# for polygon in self.patches:
-		# 	if not len(SA.clip(polygon1.get_xy(), polygon.get_xy())) == 0: # if not an empty array
-		# 		return True # return intersect as true
-		return False
-	
-	# def sample_points(n, self):
-	# 	self.x.extend(np.random.random(n))
-	# 	self.y.extend(np.random.random(n))
-	
-	def render_graph(self):
-		self.fig, self.ax = plt.subplots()
-		self.patches = []
-		
-		# put all polygon_points into patches
-		for points in self.polygon_points:
-			polygon = mpl_poly.Polygon(points, True)
-			self.patches.append(polygon)
-		
-		# range of visual display
-		self.x_range = (-0.00,1.00)
-		self.y_range = (-0.00,1.00)
-		
-		colors = 100*np.random.rand(len(self.patches))
-		p = PatchCollection(self.patches, alpha=0.4)
-		p.set_array(np.array(colors))
-		self.ax.add_collection(p)
-		# self.fig.colorbar(p, ax=self.ax)
-		plt.show()
-	
-	# incomplete	
-	def save_to_file(self, dir, name):
-		import os
-		if dir is None:
-			path = os.getcwd()
-		file = open(os.path.join(path, name+"txt"),"w")
-		
-		for line in self.polygon_points:
-			file.write(line)
-			file.write("\n")
-		file.close()
-	
-	# incomplete
-	def read_from_file(self, path):
-		if len(self.polygon_points) is not 0:
-			print()
-			text = input("This will overwrite current points\nContinue?(enter ""y"")")
-			if text is not "y":
-				return
-		file = open(path)
-		self.polygon_points = []
-		for line in file:
-			self.polygon_points.append(line)
-
-if __name__ == "__main__":
-	print("test area heuristic to make sure calculation is right")
-	print("implement convexity_heuristic")
-	b = board()
-	b.create_polygons()
+def sample_more_points(b, num):
+	b.sample_points(num)
 	b.render_graph()
-	# b.save_to_file(None, "pointsFile")
-	# b.read_from_file("pointsFile.txt")
+	from pathlib import Path
+	import os
+	path = os.getcwd()
+	my_file = Path(path+"\\test triangles_points")
+	if my_file.is_file():
+		# file exists
+		text2 = input("Overwrite current points? (enter ""e"")")
+	else:
+		text2 = input("Save current points? (enter ""e"")")
+	if text2 is "e":
+		b.save_to_file("test triangles")
+		# "_points"
+		print("All Saved")
+	else:
+		print("Board and Points not saved")
+	return b
+
+# make functional
+def custom_prompt(text, buttons, actions, args, catch):
+	response = input(text)
+	index = buttons.index(response) if response in buttons else -1
+	if index is not -1:
+		if args[index] is not None:
+			actions[index](args[index])
+		else:
+			actions[index]()
+	else:
+		print(catch)
+
+
+
+# START HERE ==================================================================================
+print("Board")
+num_tri = 10
+num_points_sampling = 100
+text1 = None
+possibleAnswers = ['q','w']
+new_board = False
+while text1 not in possibleAnswers:
+	text1 = input("Read from last file?(enter ""q"")\n Create new board?(enter ""w"")")
+	if text1 is "q":
+		b = board_class.board()
+		response1 = b.read_board_from_file("test triangles")
+		if response1 is -1:
+			text1 = None
+			continue
+		break
+	elif text1 is "w":
+		b = board_class.board(num_tri)
+		b.create_polygons()
+		print()
+		new_board = True
+		break
+	else:
+		print("\nError, instruction not q or w\n")
+b.render_graph()
+
+text2 = None
+possibleAnswers = ['e']
+while text2 not in possibleAnswers:
+	if new_board is True:
+		text2 = input("Save/Overwrite current triangles? (enter ""e"")\nContinue without saving?(enter ""r"")")
+	else:
+		break # if I read it in I dont need to save it 
+		# text2 = input("Save current triangles? (enter ""e"")")
+	if text2 is "e":
+		b.save_board_to_file("test triangles")
+		break
+	elif text2 is "r":
+		print("Board not saved")
+		break
+	else:
+		print("\nError, instruction not e or r\n")
+
+touched = False
+# POINTS ======================================================
+print("\n\nPoints")
+text3 = None
+possibleAnswers = ['a']
+if new_board is False:
+	while text3 not in possibleAnswers:
+		text3 = input("Read points from last file?(enter ""a"")\nContinue?(enter ""s"")")  # invalid if creating new board
+		if text3 is "a": # if yes, include them
+			response = b.read_points_from_file("test triangles_points")
+			if response is -1:
+				text3 = None
+				continue
+			b.render_graph()
+			break
+		elif text3 is "s":
+			print("\nNo File Read\n")
+			break
+		else:
+			print("\nError, instruction not a or s\n")
+
+text4 = None
+possibleAnswers = ['a']
+while text4 not in possibleAnswers:
+	text4 = input("Sample More Points?(enter ""a"")\nContinue?(enter ""s"")") 
+	if text4 is "a":
+		# sample_more_points(b, num_points_sampling)
+		b.sample_points(num_points_sampling)
+		b.render_graph()
+		print()
+		touched = True
+		text4 = None
+	elif text4 is "s":
+		print("No Points Added")
+		break
+	else:
+		print("\nError, instruction not a or s\n")
+
+if touched is True:
+	text5 = None
+	possibleAnswers = ['e']
+	while text5 not in possibleAnswers:
+		text5 = input("Save/Overwrite current points AND board? (enter ""e"")\nContinue?(enter ""r"")")
+		if text5 is "e":
+			b.save_points_to_file("test triangles_points")
+			b.save_board_to_file("test triangles")
+			break
+		elif text5 is "r":
+			print("Not Saved")
+			break
+		else:
+			print("\nError, instruction not e or r\n")
+
+# PRM
+print("\nPRM Part\n")
+if b.num_points is not 0:
+	b.calculate_prm_parameter()
+	b.PRM()
+	b.render_graph()
+else:
+	print("No points exist")

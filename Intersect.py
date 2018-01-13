@@ -1,10 +1,14 @@
 from shapely.geometry import Polygon
- 
+from shapely.geometry import Point
+
 def PolyOverlaps(poly1, poly2):
 	poly1s = Polygon(poly1)
 	poly2s = Polygon(poly2)
 	return poly1s.intersects(poly2s)
- 
+
+def PointIn(poly, point):
+	return Polygon(poly).contains(Point(point[0], point[1]))
+	
 if __name__=="__main__":
 	t1 = [[0,0],[5,0],[0,5]]
 	t2 = [[0.1,0.1],[4.5,0.1],[0.1,3]]
