@@ -1,25 +1,25 @@
 import board as board_class
 
-
-def sample_more_points(b, num):
-	b.sample_points(num)
-	b.render_graph()
-	from pathlib import Path
-	import os
-	path = os.getcwd()
-	my_file = Path(path+"\\test triangles_points")
-	if my_file.is_file():
-		# file exists
-		text2 = input("Overwrite current points? (enter ""e"")")
-	else:
-		text2 = input("Save current points? (enter ""e"")")
-	if text2 is "e":
-		b.save_to_file("test triangles")
-		# "_points"
-		print("All Saved")
-	else:
-		print("Board and Points not saved")
-	return b
+# unused
+	# def sample_more_points(b, num):
+	# 	b.sample_points(num)
+	# 	b.render_graph()
+	# 	from pathlib import Path
+	# 	import os
+	# 	path = os.getcwd()
+	# 	my_file = Path(path+"\\test triangles_points")
+	# 	if my_file.is_file():
+	# 		# file exists
+	# 		text2 = input("Overwrite current points? (enter ""e"")")
+	# 	else:
+	# 		text2 = input("Save current points? (enter ""e"")")
+	# 	if text2 is "e":
+	# 		b.save_to_file("test triangles")
+	# 		# "_points"
+	# 		print("All Saved")
+	# 	else:
+	# 		print("Board and Points not saved")
+	# 	return b
 
 # make functional
 def custom_prompt(text, buttons, actions, args, catch):
@@ -37,11 +37,12 @@ def custom_prompt(text, buttons, actions, args, catch):
 
 # START HERE ==================================================================================
 print("Board")
-num_tri = 10
-num_points_sampling = 100
-text1 = None
+num_tri = 6
+num_points_sampling = 2
 possibleAnswers = ['q','w']
 new_board = False
+text1 = None
+# READ FROM LAST FILE?
 while text1 not in possibleAnswers:
 	text1 = input("Read from last file?(enter ""q"")\n Create new board?(enter ""w"")")
 	if text1 is "q":
@@ -61,14 +62,14 @@ while text1 not in possibleAnswers:
 		print("\nError, instruction not q or w\n")
 b.render_graph()
 
+possibleAnswers = ['e','r']
 text2 = None
-possibleAnswers = ['e']
+# SAVE/OVERWRITE CURRENT TRIANGLES?
 while text2 not in possibleAnswers:
 	if new_board is True:
 		text2 = input("Save/Overwrite current triangles? (enter ""e"")\nContinue without saving?(enter ""r"")")
 	else:
 		break # if I read it in I dont need to save it 
-		# text2 = input("Save current triangles? (enter ""e"")")
 	if text2 is "e":
 		b.save_board_to_file("test triangles")
 		break
@@ -80,9 +81,10 @@ while text2 not in possibleAnswers:
 
 touched = False
 # POINTS ======================================================
-print("\n\nPoints")
+print("\nPoints")
 text3 = None
-possibleAnswers = ['a']
+possibleAnswers = ['a','s']
+# READ POINTS FROM LAST FILE?
 if new_board is False:
 	while text3 not in possibleAnswers:
 		text3 = input("Read points from last file?(enter ""a"")\nContinue?(enter ""s"")")  # invalid if creating new board
@@ -100,22 +102,22 @@ if new_board is False:
 			print("\nError, instruction not a or s\n")
 
 text4 = None
-possibleAnswers = ['a']
+possibleAnswers = ['a','s']
+# SAMPLE MORE POINTS?
 while text4 not in possibleAnswers:
 	text4 = input("Sample More Points?(enter ""a"")\nContinue?(enter ""s"")") 
 	if text4 is "a":
-		# sample_more_points(b, num_points_sampling)
 		b.sample_points(num_points_sampling)
 		b.render_graph()
 		print()
 		touched = True
 		text4 = None
 	elif text4 is "s":
-		print("No Points Added")
+		print("\nNo More Points Added\n")
 		break
 	else:
 		print("\nError, instruction not a or s\n")
-
+# SAVE POINTS AND BOARD?
 if touched is True:
 	text5 = None
 	possibleAnswers = ['e']
@@ -133,8 +135,11 @@ if touched is True:
 
 # PRM
 print("\nPRM Part\n")
+text5 = None
+possibleAnswers
 if b.num_points is not 0:
 	b.calculate_prm_parameter()
+	print("radius= ", b.r)
 	b.PRM()
 	b.render_graph()
 else:

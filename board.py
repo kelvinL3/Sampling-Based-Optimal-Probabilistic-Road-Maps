@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpl_poly
-from matplotlib.collections import PatchCollection
+from matplotlib.collections import MPLCollections
 import numpy as np
 # import GUI # add this in later when compartemtalizing
 import Intersect as Intersect
-import math as math
+import math
+import collections # for nested dictionaries 
 
 import shapely.geometry as SG
 
@@ -19,6 +20,9 @@ class board:
 		
 		self.points = []
 		self.num_points = 0
+		
+		self.edges = collections.defaultdict(dict) # nested dictionaries
+		self.lines = []
 		
 		# heuristic for number of triangles to put in
 		self.max_density = .7
@@ -119,18 +123,42 @@ class board:
 		return True
 
 	def calculate_prm_parameter(self):
-		k = 2*pow((1+1/self.d), 1/self.d)pow((self.lebesgue)/(math.pi), 1/self.d)
-		self.r = k * pow(math.log(self.num_points,e)/self.num_points, 1/self.d)
+		k = 2*pow((1+1/self.d), 1/self.d) * pow((self.lebesgue)/(math.pi), 1/self.d)
+		self.r = k * pow(math.log(self.num_points,math.e)/self.num_points, 1/self.d)
 
-	def PRM(self, pt):
+	def PRM(self):
 		if self.num_points is 0:
 			print("\nNo points sampled\n")
 			return
 		self.calculate_prm_parameter()
-		for pt in self.points:
-			# get list of points in self.r neighborhood
-			# go through list and perform self.connect_two_points on anything not in visited list
+		# set up KD tree
+		from scipy.spatial import KDTree
+		T = KDTree(self.points)
+		# calculate edges
+		for pt1 in self.points:
+			idx = T.query_ball_point(pt,r=self.r)
+			for indx2 in idx:
+				self.edges[pt1][self.points[indx2]] = True
+			# print("In neighborhood of ", pt, ": ", idx)
 		
+		# go through edges
+		for pt1, list2 in d.items():
+			for pt2, true in list2.items():
+				# TO DO check edge
+				if self.connect_two_points(pt1, pt2) is True:
+					# TO DO add to plot
+					self.lines.append([pt1,pt2])
+				try:
+					# TO DO remove itself
+					del self.edges[pt1][pt2]
+				except:
+					print("Error A1")
+				try:
+					# TO DO remove identical one
+					del self.edges[pt2][pt1]
+				except:
+					print("Error A2, not symmetric???1!?")
+				
 
 	def connect_two_points(self, pt1, pt2):
 		# self.polygon_points
@@ -138,10 +166,10 @@ class board:
 		d = distance(pt1, pt2)
 		num_steps = ceil(d/self.step_size)
 		alpha = self.step_size/d
-		unit_step = (pt2-pt1)alpha
+		unit_step = (pt2-pt1)*alpha
 		for i in range(1, num_steps):
 			# evaluate the point here
-			if not self.legal_point(pt1+i*unit_step)
+			if not self.legal_point(pt1+i*unit_step):
 				return False
 		return True
 
@@ -149,23 +177,29 @@ class board:
 		self.fig, self.ax = plt.subplots()
 		self.patches = []
 		
+		# range of visual display
+		self.y_range = (-0.00,1.00)
+		self.x_range = (-0.00,1.00)
+		
 		# put all polygon_points into patches
 		for points in self.polygon_points:
 			polygon = mpl_poly.Polygon(points, True)
 			self.patches.append(polygon)
 		
-		# range of visual display
-		self.x_range = (-0.00,1.00)
-		self.y_range = (-0.00,1.00)
-		
 		colors = 100*np.random.rand(len(self.patches))
-		p = PatchCollection(self.patches, alpha=0.4)
+		p = MPLCollections(self.patches, alpha=0.4)
 		p.set_array(np.array(colors))
 		self.ax.add_collection(p)
 		# self.fig.colorbar(p, ax=self.ax)
+		
+		# put POINTS into graph
 		if len(self.points) is not 0:
 			x, y = zip(*self.points)
 			plt.scatter(x, y)
+		
+		# put edges into lines into graph
+		
+		
 		plt.show()
 
 	def save_board_to_file(self, name, dir=None):
