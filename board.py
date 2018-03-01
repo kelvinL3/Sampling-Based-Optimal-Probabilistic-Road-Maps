@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpl_poly
-from matplotlib.collections import MPLCollections
+from matplotlib.collections import PatchCollection
 import numpy as np
 # import GUI # add this in later when compartemtalizing
 import Intersect as Intersect
@@ -136,8 +136,10 @@ class board:
 		T = KDTree(self.points)
 		# calculate edges
 		for pt1 in self.points:
-			idx = T.query_ball_point(pt,r=self.r)
+			# idx := list of points in ball around pt1
+			idx = T.query_ball_point(pt1,r=self.r)
 			for indx2 in idx:
+				print("Debug", indx2, pt1)
 				self.edges[pt1][self.points[indx2]] = True
 			# print("In neighborhood of ", pt, ": ", idx)
 		
@@ -187,7 +189,7 @@ class board:
 			self.patches.append(polygon)
 		
 		colors = 100*np.random.rand(len(self.patches))
-		p = MPLCollections(self.patches, alpha=0.4)
+		p = PatchCollection(self.patches, alpha=0.4)
 		p.set_array(np.array(colors))
 		self.ax.add_collection(p)
 		# self.fig.colorbar(p, ax=self.ax)
